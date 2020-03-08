@@ -1,4 +1,8 @@
-import {BrowserModule, HammerGestureConfig} from '@angular/platform-browser';
+import {
+	BrowserModule,
+	HammerGestureConfig,
+	HAMMER_GESTURE_CONFIG
+} from '@angular/platform-browser';
 import {NgModule, LOCALE_ID} from '@angular/core';
 import {HttpClientModule} from '@angular/common/http';
 import {AppComponent} from './app.component';
@@ -9,7 +13,7 @@ import {RegisterComponent} from './register/register.component';
 import {ErrorInterceptorProvider} from 'src/services/error.interceptor';
 import {ListComponent} from './list/list.component';
 import {MessagesComponent} from './messages/messages.component';
-import {RouterModule} from '@angular/router';
+import {NgxGalleryModule} from 'ngx-gallery';
 import {MembersListComponent} from './members-list/members-list.component';
 import {MembersCardComponent} from './members-card/members-card.component';
 import {JwtModule} from '@auth0/angular-jwt';
@@ -21,14 +25,16 @@ import {MemberListResolver} from 'src/resolvers/members-list-resolver';
 import {MembersEditComponent} from './members-edit/members-edit.component';
 import {MemberEditResolver} from 'src/resolvers/members-edit-resolver';
 import {AppRoutingModule} from './app-routing.module';
+import {PreventUnsavedChanges} from 'src/guards/prevent-unsaved-changes.guard';
+import {AuthGuard} from 'src/guards/auth.guard';
 
 export function tokenGetter() {
 	return localStorage.getItem('token');
 }
-export declare class CustomHammerConfig extends HammerGestureConfig {
-	overrides: {
-		pinch: {enable: false};
-		rotate: {enable: false};
+export class CustomHammerConfig extends HammerGestureConfig {
+	overrides = {
+		pinch: {enable: false},
+		rotate: {enable: false}
 	};
 }
 
@@ -52,6 +58,7 @@ registerLocaleData(br, 'pt');
 		HttpClientModule,
 		FormsModule,
 		AppRoutingModule,
+		NgxGalleryModule,
 		JwtModule.forRoot({
 			config: {
 				tokenGetter: tokenGetter,
@@ -65,7 +72,10 @@ registerLocaleData(br, 'pt');
 		MemberDetailResolver,
 		MemberListResolver,
 		MemberEditResolver,
-		{provide: LOCALE_ID, useValue: 'pt'}
+		PreventUnsavedChanges,
+		AuthGuard,
+		{provide: LOCALE_ID, useValue: 'pt'},
+		{provide: HAMMER_GESTURE_CONFIG, useClass: CustomHammerConfig}
 	],
 	bootstrap: [AppComponent]
 })
